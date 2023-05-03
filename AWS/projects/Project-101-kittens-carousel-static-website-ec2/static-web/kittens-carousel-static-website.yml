@@ -1,5 +1,5 @@
-AWSTemplateFormatVersion: 2010-09-09
-Description: 
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
  This CloudFormation template
  was written for running Kittens 
  Carousel Static Website on EC2.
@@ -8,13 +8,6 @@ Description:
  group which allows port 80 and 22 for SSH access.
  This static website is downloaded from my 
  GitHub account to be deployed on Apache server.
-
-
-Parameters:
-Metadata:
-Mappings:
-Conditions:
-Transform:
 
 Resources:
   WebServerSecurityGroup:
@@ -34,25 +27,20 @@ Resources:
   WebServerHost:
     Type: AWS::EC2::Instance
     Properties:
-      KeyName: fist_key_pair
-      DisableApiTermination: 
+      KeyName: fist_key_pair 
       ImageId: ami-02396cdd13e9a1257 
       InstanceType: t2.micro 
       SecurityGroupIds:
         - ref: WebServerSecurityGroup
-      UserData: !Base64 |
-        #!/bin/bash -ex
-        # put your script here
       Tags:
         - Key: Name
-          Value: !sub Web server of ${AWS::StackName} Stack
-      UserData:
-        Fn::Base64:
-          !Sub |
+        - Value: !Sub Web Server of ${AWS::StackName} Stack
+      UserData: 
+        Fn::Base64: |
             #! /bin/bash
             yum update -y
             yum install httpd -y
-            FOLDER="https://raw.githubusercontent.com/serdarcw/project-repository/master/Project-101-kittens-carousel-static-website-ec2/static-web"
+            FOLDER="https://raw.githubusercontent.com/Abra7am/my_projects/main/AWS/projects/Project-101-kittens-carousel-static-website-ec2/static-web"
             cd /var/www/html
             wget ${FOLDER}/index.html
             wget ${FOLDER}/cat0.jpg
@@ -60,13 +48,16 @@ Resources:
             wget ${FOLDER}/cat2.jpg
             wget ${FOLDER}/cat3.png
             systemctl start httpd
-            systemctl enable httpd  
-
-
-
-
-
-
+            systemctl enable httpd
 
 
 Outputs:
+  WebsiteURL:
+    Value: !Sub 
+      - http://${PublicAddress}
+      - PublicAddress: !GetAtt WebServerHost.PublicDnsName
+    Description: Kittens Carousel Application URL
+
+
+
+
